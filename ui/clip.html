@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en" class="antialiased">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Formant</title>
+    <meta name="theme-color" content="#F6F6F7" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./assets/desktop-B_5dL8eF.css" />
+    <style>
+      .clip-log {
+        white-space: pre-wrap;
+        max-height: 11rem;
+        overflow: auto;
+      }
+      .clip-audio {
+        width: 100%;
+        height: 2.5rem;
+      }
+    </style>
+  </head>
+  <body class="font-sans bg-paper text-ink">
+    <main class="min-h-dvh bg-paper text-ink">
+      <div class="relative h-32 overflow-hidden">
+        <svg id="wave" viewBox="0 0 1600 160" preserveAspectRatio="none" class="absolute inset-0 h-full w-full" aria-hidden="true"></svg>
+        <header class="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-start justify-between gap-4 px-8 pt-7">
+          <a href="/" class="pointer-events-auto flex items-center gap-3 py-1">
+            <span class="flex items-center gap-2">
+              <span class="text-xl font-semibold tracking-tight text-ink">Formant</span>
+              <span id="dot" class="size-2.5 rounded-full bg-signal"></span>
+            </span>
+            <span class="h-4 w-px bg-line-strong" aria-hidden="true"></span>
+            <span class="text-sm font-normal tracking-wide text-mute">Pure Acoustic Matrix</span>
+          </a>
+          <div id="menu-wrap" class="pointer-events-auto relative flex items-center gap-2">
+            <div class="flex h-11 items-center gap-2 rounded-full border border-line bg-raised/90 px-3.5 text-xs font-medium tracking-wide text-ink shadow-pill">
+              <svg class="size-3.5 text-mute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M2 12h4" /><path d="M6 8v8" /><path d="M10 5v14" /><path d="M14 9v6" /><path d="M18 7v10" /><path d="M22 12h-4" />
+              </svg>
+              <span id="badge" class="tabular-nums">96KHZ  ·  ZERO LATENCY</span>
+            </div>
+            <button type="button" id="menu-btn" aria-haspopup="menu" aria-expanded="false" aria-label="Menu" class="flex size-11 items-center justify-center rounded-full border border-line bg-raised/90 text-ink shadow-pill transition-transform duration-150 ease-out-smooth active:scale-95">
+              <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true">
+                <path d="M4 5h16" /><path d="M4 12h16" /><path d="M4 19h16" />
+              </svg>
+            </button>
+            <div id="menu" role="menu" class="hidden absolute right-0 top-full mt-2 w-56 overflow-hidden rounded-2xl border border-line bg-raised py-1.5 shadow-float">
+              <a href="/#/console" role="menuitem" class="flex w-full px-4 py-2.5 text-left text-sm text-ink hover:bg-paper">Chatterbox Console</a>
+              <a href="/clip" role="menuitem" class="flex w-full px-4 py-2.5 text-left text-sm text-ink hover:bg-paper">Training voice</a>
+              <button type="button" id="stop-engine" role="menuitem" class="flex w-full px-4 py-2.5 text-left text-sm text-ink hover:bg-paper disabled:text-faint">Stop engine</button>
+            </div>
+          </div>
+        </header>
+      </div>
+
+      <div class="mx-auto max-w-5xl px-8 pb-24 pt-6">
+        <div class="mb-10 flex items-end justify-between gap-4">
+          <div>
+            <a href="/" class="inline-flex items-center gap-1.5 text-xs font-medium text-mute transition-[color] duration-150 hover:text-ink">
+              <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m15 18-6-6 6-6" />
+              </svg>
+              Matrix
+            </a>
+            <h1 class="mt-2 text-2xl font-semibold tracking-tight text-ink">Training voice</h1>
+            <p class="mt-1 text-sm text-mute">Cut a wav from YouTube into D:\yt. Optionally copy it into reference_audio for cloning.</p>
+          </div>
+          <a href="/#/console" class="flex h-10 items-center rounded-full border border-line bg-raised px-4 text-sm font-medium text-ink shadow-pill transition-transform duration-150 ease-out-smooth active:scale-95 hover:bg-paper">Chatterbox Console</a>
+        </div>
+
+        <div class="grid grid-cols-2 gap-12">
+          <section class="space-y-8">
+            <div>
+              <h2 class="text-sm font-medium tracking-wide text-ink">Source</h2>
+              <p class="mt-1 text-sm text-mute">Same yt-dlp cut you already use: link, then a start and end time.</p>
+            </div>
+            <label class="grid gap-2">
+              <span class="text-sm font-medium text-ink">YouTube link</span>
+              <input id="url" type="url" placeholder="https://www.youtube.com/watch?v=…" class="h-11 w-full rounded-full border border-line bg-raised px-4 text-sm text-ink outline-none focus:ring-2 focus:ring-signal/30" />
+            </label>
+            <div class="grid grid-cols-2 gap-4">
+              <label class="grid gap-2">
+                <span class="text-sm font-medium text-ink">Start</span>
+                <span class="text-xs text-mute">22:17 or 133</span>
+                <input id="start" type="text" placeholder="22:17" class="h-11 rounded-full border border-line bg-raised px-4 text-sm text-ink outline-none focus:ring-2 focus:ring-signal/30" />
+              </label>
+              <label class="grid gap-2">
+                <span class="text-sm font-medium text-ink">End</span>
+                <span class="text-xs text-mute">22:38 or 154</span>
+                <input id="end" type="text" placeholder="22:38" class="h-11 rounded-full border border-line bg-raised px-4 text-sm text-ink outline-none focus:ring-2 focus:ring-signal/30" />
+              </label>
+            </div>
+            <label class="grid gap-2">
+              <span class="text-sm font-medium text-ink">File name</span>
+              <span class="text-xs text-mute">Written to D:\yt. Leave blank for clip.wav.</span>
+              <input id="filename" type="text" placeholder="clip" class="h-11 w-full rounded-full border border-line bg-raised px-4 text-sm text-ink outline-none focus:ring-2 focus:ring-signal/30" />
+            </label>
+            <div class="flex shrink-0 items-center gap-2.5">
+              <span class="whitespace-nowrap text-sm font-medium text-ink">Save into reference_audio</span>
+              <button type="button" role="switch" aria-checked="true" id="import-sw" aria-label="Save into reference_audio" class="relative flex h-11 w-11 shrink-0 items-center justify-center">
+                <span id="import-track" class="relative block h-5 w-9 rounded-full bg-ink transition-[background-color] duration-150 ease-out-smooth">
+                  <span id="import-knob" class="absolute top-0.5 left-0.5 size-4 rounded-full bg-raised shadow-sm transition-transform duration-150 ease-out-smooth translate-x-4"></span>
+                </span>
+              </button>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" id="export-btn" class="inline-flex h-11 items-center gap-2 rounded-full bg-ink px-5 text-sm font-medium text-raised transition-transform duration-150 ease-out-smooth active:scale-95 disabled:opacity-50">
+                <svg id="export-icon" class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 3v12" /><path d="m7 10 5 5 5-5" /><path d="M5 21h14" />
+                </svg>
+                <span id="export-label">Export wav</span>
+              </button>
+              <button type="button" id="folder-btn" class="flex h-11 items-center gap-2 rounded-full border border-line bg-raised px-4 text-sm font-medium text-ink shadow-pill transition-transform duration-150 ease-out-smooth active:scale-95">Open folder</button>
+            </div>
+            <p id="note" class="text-sm text-mute"></p>
+          </section>
+
+          <section class="space-y-8">
+            <div>
+              <h2 class="text-sm font-medium tracking-wide text-ink">Clone clip</h2>
+              <p class="mt-1 text-sm text-mute">yt-dlp writes the wav into D:\yt. If Save is on, a copy also goes into Chatterbox reference_audio. Select it under Clone in the console.</p>
+            </div>
+            <div class="rounded-2xl border border-line bg-raised p-6 shadow-pill space-y-4">
+              <div>
+                <span class="text-xs text-mute">Last file</span>
+                <p id="last-file" class="mt-1 break-words text-sm font-medium text-ink">None yet.</p>
+              </div>
+              <audio id="player" class="clip-audio hidden" controls></audio>
+            </div>
+            <div>
+              <h2 class="text-sm font-medium tracking-wide text-ink">Log</h2>
+              <pre id="log" class="clip-log mt-3 rounded-2xl border border-line bg-raised p-4 text-xs text-mute">Idle.</pre>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+    <script>
+      function wavePath(mid, amp, phase) {
+        const pts = [];
+        for (let i = 0; i <= 1600; i += 40) {
+          const fade = 1 - 0.55 * Math.max(0, (i / 1600 - 0.45) / 0.55);
+          pts.push(i + "," + (mid + Math.sin(i * 0.006 + phase) * amp * fade).toFixed(1));
+        }
+        return "M" + pts.join(" L");
+      }
+      const svg = document.getElementById("wave");
+      const layers = [
+        ["#2ee6d6", 18, 0.9, "1.3"],
+        ["#5b9cff", 24, 1.4, "1.2"],
+        ["#ff8a4c", 14, 2.2, "1.15"],
+        ["#5be08a", 16, 0.4, "1.2"],
+        ["#8b7cff", 22, 2.8, "1.25"],
+        ["#ff6ba9", 15, 1.7, "1.15"],
+      ];
+      for (const [stroke, amp, phase, width] of layers) {
+        const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        p.setAttribute("d", wavePath(80, amp, phase));
+        p.setAttribute("fill", "none");
+        p.setAttribute("stroke", stroke);
+        p.setAttribute("stroke-width", width);
+        svg.appendChild(p);
+      }
+
+      const menuBtn = document.getElementById("menu-btn");
+      const menu = document.getElementById("menu");
+      const wrap = document.getElementById("menu-wrap");
+      menuBtn.addEventListener("click", () => {
+        const open = menu.classList.toggle("hidden") === false;
+        menuBtn.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+      window.addEventListener("mousedown", (e) => {
+        if (!wrap.contains(e.target)) {
+          menu.classList.add("hidden");
+          menuBtn.setAttribute("aria-expanded", "false");
+        }
+      });
+
+      const dot = document.getElementById("dot");
+      const badge = document.getElementById("badge");
+      const stopBtn = document.getElementById("stop-engine");
+      async function refreshStatus() {
+        try {
+          const r = await fetch("/formant/status");
+          const s = await r.json();
+          const live = s.engine === "live";
+          const boot = s.engine === "awakening";
+          dot.classList.toggle("signal-live", live);
+          badge.textContent = boot ? "BOOTING  ·  MATRIX" : live ? "96KHZ  ·  LIVE" : "96KHZ  ·  ZERO LATENCY";
+          stopBtn.disabled = s.engine === "idle";
+        } catch {}
+      }
+      refreshStatus();
+      setInterval(refreshStatus, 2000);
+      stopBtn.addEventListener("click", async () => {
+        await fetch("/formant/engine/stop", { method: "POST" });
+        menu.classList.add("hidden");
+        refreshStatus();
+      });
+
+      let importOn = true;
+      const importSw = document.getElementById("import-sw");
+      const importTrack = document.getElementById("import-track");
+      const importKnob = document.getElementById("import-knob");
+      function paintSwitch() {
+        importSw.setAttribute("aria-checked", importOn ? "true" : "false");
+        importTrack.classList.toggle("bg-ink", importOn);
+        importTrack.classList.toggle("bg-line-strong", !importOn);
+        importKnob.classList.toggle("translate-x-4", importOn);
+        importKnob.classList.toggle("translate-x-0", !importOn);
+      }
+      importSw.addEventListener("click", () => {
+        importOn = !importOn;
+        paintSwitch();
+      });
+
+      const exportBtn = document.getElementById("export-btn");
+      const exportLabel = document.getElementById("export-label");
+      const exportIcon = document.getElementById("export-icon");
+      const note = document.getElementById("note");
+      const logEl = document.getElementById("log");
+      const lastFile = document.getElementById("last-file");
+      const player = document.getElementById("player");
+      let pollTimer = 0;
+
+      function setBusy(on) {
+        exportBtn.disabled = on;
+        exportLabel.textContent = on ? "Exporting…" : "Export wav";
+        exportIcon.classList.toggle("animate-spin", on);
+      }
+      function showSnap(s) {
+        if (s.log) logEl.textContent = s.log;
+        if (s.state === "done") {
+          lastFile.textContent = s.imported
+            ? s.file + "  ·  cloned as " + s.imported
+            : s.file || "Done.";
+          note.textContent = s.imported
+            ? "Wav is in reference_audio. Open Chatterbox Console and pick it under Clone."
+            : "Wav exported. Import it manually in Chatterbox Console if you want to clone.";
+          note.className = "text-sm text-green-600";
+          player.classList.remove("hidden");
+          player.src = "/formant/clip/audio?t=" + Date.now();
+          setBusy(false);
+        } else if (s.state === "error") {
+          note.textContent = s.error || "Clip failed.";
+          note.className = "text-sm text-red-600";
+          setBusy(false);
+        } else if (s.state === "running") {
+          note.textContent = "yt-dlp is cutting the section…";
+          note.className = "text-sm text-mute";
+        }
+      }
+      async function poll() {
+        try {
+          const r = await fetch("/formant/clip/status");
+          const s = await r.json();
+          showSnap(s);
+          if (s.state === "running") pollTimer = window.setTimeout(poll, 700);
+        } catch {
+          pollTimer = window.setTimeout(poll, 1200);
+        }
+      }
+      exportBtn.addEventListener("click", async () => {
+        window.clearTimeout(pollTimer);
+        setBusy(true);
+        note.textContent = "";
+        try {
+          const r = await fetch("/formant/clip", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              url: document.getElementById("url").value,
+              start: document.getElementById("start").value,
+              end: document.getElementById("end").value,
+              filename: document.getElementById("filename").value,
+              importVoice: importOn,
+            }),
+          });
+          const s = await r.json();
+          if (!r.ok) {
+            note.textContent = s.error || "Could not start.";
+            note.className = "text-sm text-red-600";
+            setBusy(false);
+            return;
+          }
+          logEl.textContent = s.log || "Starting…";
+          poll();
+        } catch (e) {
+          note.textContent = String(e);
+          note.className = "text-sm text-red-600";
+          setBusy(false);
+        }
+      });
+      document.getElementById("folder-btn").addEventListener("click", () => {
+        fetch("/formant/clip/reveal", { method: "POST" });
+      });
+      fetch("/formant/clip/status").then((r) => r.json()).then((s) => {
+        if (s.file || s.log) showSnap(s);
+      }).catch(() => {});
+    </script>
+  </body>
+</html>

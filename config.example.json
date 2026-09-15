@@ -1,0 +1,10 @@
+{
+  "chatterbox_dir": "C:\\path\\to\\Chatterbox-TTS-Server-main",
+  "bot_dir": "",
+  "chatterbox_url": "http://127.0.0.1:8004",
+  "ytdlp": "",
+  "ffmpeg": "",
+  "clip_dir": "",
+  "emotion_provider": "deepseek",
+  "emotion_model": ""
+}

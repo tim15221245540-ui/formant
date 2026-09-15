@@ -1,0 +1,20 @@
+__pycache__/
+*.py[cod]
+*.log
+.DS_Store
+Thumbs.db
+
+# Local machine config and secrets — never commit
+config.json
+token.txt
+*_key.txt
+.env
+.env.*
+
+# User data
+settings.json
+logs/
+outputs/
+model_cache/
+reference_audio/
+voices/

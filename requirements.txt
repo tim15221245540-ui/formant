@@ -1,0 +1,3 @@
+pywebview
+requests
+python-telegram-bot>=20,<22
