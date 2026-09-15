@@ -50,6 +50,7 @@ DEFAULT_CONFIG = {
     "clip_dir": "",
     "emotion_provider": "deepseek",
     "emotion_model": "",
+    "hub_url": "",
 }
 
 DEFAULT_SETTINGS = {
@@ -142,6 +143,8 @@ def setup_snapshot() -> dict:
         "clip_dir": str(cfg.get("clip_dir") or ""),
         "needs_setup": not chatterbox_ready(cfg),
         "providers": list(PROVIDERS.keys()),
+        "hub_url": str(cfg.get("hub_url") or ""),
+        "hub": __import__("hub_client").hub_status(),
     }
 
 
@@ -1166,6 +1169,9 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/formant/setup":
             self._json(200, setup_snapshot())
             return
+        if path == "/formant/hub":
+            self._json(200, setup_snapshot())
+            return
         if path == "/formant/voices":
             self._json(200, {"voices": engine.list_voices()})
             return
@@ -1293,6 +1299,7 @@ class Handler(BaseHTTPRequestHandler):
                     "clip_dir",
                     "emotion_provider",
                     "emotion_model",
+                    "hub_url",
                 ):
                     if key in body:
                         cfg[key] = str(body.get(key) or "").strip()
@@ -1301,6 +1308,18 @@ class Handler(BaseHTTPRequestHandler):
                     save_api_key(cfg.get("emotion_provider") or "deepseek", str(body.get("api_key") or ""))
                 if "telegram_token" in body:
                     save_telegram_token(str(body.get("telegram_token") or ""))
+                if body.get("pair"):
+                    hub_url = str(cfg.get("hub_url") or "").strip()
+                    if not hub_url:
+                        self._json(400, {"error": "Set the hub URL first (the host's public Formant address, port 8766)."})
+                        return
+                    try:
+                        import hub_client
+
+                        hub_client.pair(hub_url)
+                    except Exception as e:
+                        self._json(400, {"error": str(e)})
+                        return
                 self._json(200, setup_snapshot())
                 return
             if path == "/formant/tts":
@@ -1522,6 +1541,7 @@ def main() -> None:
         except Exception:
             time.sleep(0.05)
     print(f"  Window : {url}", flush=True)
+    threading.Thread(target=__import__("hub_client").run, daemon=True).start()
     print("  Click the waves to start Chatterbox in the background.", flush=True)
     print("  Close this window to quit Formant and Chatterbox.", flush=True)
     print("=" * 60, flush=True)

@@ -79,8 +79,11 @@
       <div id="formant-setup-mask">
         <div id="formant-setup-panel" role="dialog" aria-label="Formant setup">
           <h2>Setup</h2>
-          <p class="hint">Keys stay on this PC in %APPDATA%\\Formant. They are never sent to GitHub.</p>
+          <p class="hint">Keys stay on this PC in %APPDATA%\\Formant. The shared Telegram bot is relayed from the maintainer's home PC (no 24/7 server budget yet). If pairing fails, that PC is probably off.</p>
           <div id="formant-setup-flags"></div>
+          <label>Shared bot hub URL</label>
+          <input id="fs-hub" type="text" placeholder="http://HOST-PUBLIC-IP:8766" spellcheck="false" />
+          <p class="hint" id="fs-pair-note"></p>
           <label>Chatterbox folder</label>
           <input id="fs-box" type="text" placeholder="C:\\path\\to\\Chatterbox-TTS-Server-main" spellcheck="false" />
           <label>API provider</label>
@@ -92,7 +95,7 @@
           </select>
           <label>API key (emotion tags + Chinese captions)</label>
           <input id="fs-key" type="password" autocomplete="off" placeholder="Paste key — leave blank to keep the saved one" />
-          <label>Telegram bot token (optional)</label>
+          <label>Own Telegram bot token (optional — skip if you use the shared bot)</label>
           <input id="fs-token" type="password" autocomplete="off" placeholder="Leave blank to keep the saved token" />
           <label>ffmpeg (optional, YouTube clipper)</label>
           <input id="fs-ffmpeg" type="text" spellcheck="false" />
@@ -100,6 +103,7 @@
           <input id="fs-ytdlp" type="text" spellcheck="false" />
           <div class="row">
             <button type="button" class="ghost" id="fs-close">Close</button>
+            <button type="button" class="ghost" id="fs-pair">Pair bot</button>
             <button type="button" class="save" id="fs-save">Save</button>
           </div>
           <div id="formant-setup-status"></div>
@@ -120,7 +124,20 @@
       flags.innerHTML = "";
       flags.appendChild(flag(data.chatterbox_ready, "Chatterbox folder OK", "Chatterbox folder missing"));
       flags.appendChild(flag(data.has_api_key, "API key saved", "No API key"));
-      flags.appendChild(flag(data.has_telegram_token, "Telegram token saved", "No Telegram token"));
+      flags.appendChild(flag(data.has_telegram_token, "Own bot token saved", "No own bot token"));
+      const hub = data.hub || {};
+      flags.appendChild(flag(!!hub.session, hub.paired ? "Hub paired" : (hub.code ? "Hub code ready" : "Hub not paired"), "Hub not paired"));
+      mask.querySelector("#fs-hub").value = data.hub_url || hub.hub_url || "";
+      const note = mask.querySelector("#fs-pair-note");
+      if (hub.code && hub.bot_username) {
+        note.textContent = `In Telegram send /link ${hub.code} to @${hub.bot_username}`;
+      } else if (hub.code) {
+        note.textContent = `In Telegram send /link ${hub.code} to the Formant bot`;
+      } else if (hub.paired) {
+        note.textContent = "Paired. Keep Formant open while you use the shared bot.";
+      } else {
+        note.textContent = "Save the hub URL, then tap Pair bot.";
+      }
       mask.querySelector("#fs-box").value = data.chatterbox_dir || "";
       mask.querySelector("#fs-provider").value = data.emotion_provider || "deepseek";
       mask.querySelector("#fs-ffmpeg").value = data.ffmpeg || "";
@@ -151,27 +168,49 @@
     mask.addEventListener("click", (e) => {
       if (e.target === mask) mask.classList.remove("open");
     });
-    mask.querySelector("#fs-save").addEventListener("click", async () => {
+    async function postSetup(extra) {
       setStatus("Saving…");
       const body = {
         chatterbox_dir: mask.querySelector("#fs-box").value.trim(),
         emotion_provider: mask.querySelector("#fs-provider").value,
         ffmpeg: mask.querySelector("#fs-ffmpeg").value.trim(),
         ytdlp: mask.querySelector("#fs-ytdlp").value.trim(),
+        hub_url: mask.querySelector("#fs-hub").value.trim(),
       };
       const key = mask.querySelector("#fs-key").value.trim();
       const token = mask.querySelector("#fs-token").value.trim();
       if (key) body.api_key = key;
       if (token) body.telegram_token = token;
+      Object.assign(body, extra || {});
+      const r = await fetch("/formant/setup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || "Save failed");
+      fill(data);
+      return data;
+    }
+
+    mask.querySelector("#fs-pair").addEventListener("click", async () => {
       try {
-        const r = await fetch("/formant/setup", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        });
-        const data = await r.json();
-        if (!r.ok) throw new Error(data.error || "Save failed");
-        fill(data);
+        const data = await postSetup({ pair: true });
+        const hub = data.hub || {};
+        setStatus(
+          hub.code
+            ? `Paired code ${hub.code}. Send it to the bot as /link ${hub.code}`
+            : "Hub saved.",
+          hub.code ? "ok" : "err"
+        );
+      } catch (e) {
+        setStatus(String(e.message || e), "err");
+      }
+    });
+
+    mask.querySelector("#fs-save").addEventListener("click", async () => {
+      try {
+        const data = await postSetup();
         setStatus(
           data.chatterbox_ready
             ? "Saved. Click the waves to start Chatterbox."
