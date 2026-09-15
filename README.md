@@ -11,7 +11,7 @@ Formant does **not** include Chatterbox, GPU drivers, or voice samples. You inst
 - An NVIDIA GPU with a working CUDA install (Chatterbox requirement)
 - [Chatterbox TTS Server](https://github.com/devnen/Chatterbox-TTS-Server) cloned and able to run on its own
 - Optional: a [DeepSeek](https://platform.deepseek.com/) (or SiliconFlow / Groq / xAI) API key for emotion tags and Chinese captions
-- Optional: the shared Formant Telegram bot (recommended) **or** your own token from [@BotFather](https://t.me/BotFather)
+- Optional: your own [Telegram bot token](https://core.telegram.org/bots/tutorial) from [@BotFather](https://t.me/BotFather)
 
 ## Install
 
@@ -25,14 +25,13 @@ A **Setup** button sits at the top right. On the first run it opens by itself.
 
 1. **Chatterbox folder** — the directory that contains `server.py` (the Chatterbox repo root).
 2. **API key** — paste your DeepSeek (or other provider) key if you want emotion tags or Chinese captions. Leave blank to skip.
-3. **Shared bot hub URL** — `http://HOST-PUBLIC-IP:8766` (ask the maintainer; it is their home PC).
-4. Tap **Pair bot**, then in Telegram send `/link CODE` to the Formant bot.
-5. **API key** — paste your DeepSeek (or other provider) key if you want emotion tags or Chinese captions.
-6. Save, then click the waves to start Chatterbox.
+3. **API key** — paste your DeepSeek (or other provider) key if you want emotion tags or Chinese captions.
+4. **Telegram bot token** — paste a token from [@BotFather](https://t.me/BotFather) if you want Telegram on your machine. Then turn **TG Bot** on in Formant.
+5. Save, then click the waves to start Chatterbox.
 
-You do **not** need your own BotFather token if you use the shared bot.
+### Shared public bot — not open yet
 
-The Telegram relay runs on the maintainer's personal computer because there is **no budget for a 24/7 server yet**. If the bot does not answer, that PC is probably off. A hosted relay is planned when funding allows.
+The code can relay one shared Telegram bot to many PCs (each user keeps their own voices and API keys). That needs a small 24/7 server. **There is no budget for that yet, so the shared hub is closed.** Pair bot / hub URL will stay unused until funding allows. Use your own BotFather token for now.
 
 Keys are written to `%APPDATA%\Formant\` (`deepseek_key.txt`, `token.txt`, `config.json`). They never belong in the git folder. Do not commit them.
 
@@ -47,18 +46,18 @@ Keys are written to `%APPDATA%\Formant\` (`deepseek_key.txt`, `token.txt`, `conf
 
 Non-English Multilingual voices are weaker than English Turbo. That is a model limit, not a Formant setting.
 
-## Telegram (shared bot)
+## Telegram (your own bot)
 
-Keep Formant open on your PC. Messages you send to the shared bot are synthesized **here**, with **your** cloned voices and **your** API key.
+Paste your BotFather token in Setup and turn **TG Bot** on. The bot talks only to **your** PC.
 
 | Command | What it does |
 |---|---|
 | `/start` | About Formant |
-| `/link CODE` | Pair this Telegram account with your Formant window |
-| `/unlink` | Stop using your PC for this chat |
-| `/voice` `/emotion` `/translate` `/style` | Host only — guests set these in the Formant window |
-
-Advanced: paste your own BotFather token in Setup if you want a private bot instead of the shared one.
+| `/voice` | Pick a cloned voice |
+| `/emotion` | Emotion tags on/off (English / Turbo only) |
+| `/translate` | Chinese captions on/off |
+| `/style` | Caption style |
+| `/status` | Engine, voice, model, language |
 
 ## License
 

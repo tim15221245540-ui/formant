@@ -79,10 +79,10 @@
       <div id="formant-setup-mask">
         <div id="formant-setup-panel" role="dialog" aria-label="Formant setup">
           <h2>Setup</h2>
-          <p class="hint">Keys stay on this PC in %APPDATA%\\Formant. The shared Telegram bot is relayed from the maintainer's home PC (no 24/7 server budget yet). If pairing fails, that PC is probably off.</p>
+          <p class="hint">Keys stay on this PC in %APPDATA%\\Formant. They are never sent to GitHub. The shared public Telegram bot is not open yet (no budget for a 24/7 server). Use your own BotFather token below.</p>
           <div id="formant-setup-flags"></div>
-          <label>Shared bot hub URL</label>
-          <input id="fs-hub" type="text" placeholder="http://HOST-PUBLIC-IP:8766" spellcheck="false" />
+          <label>Shared bot hub URL (closed for now)</label>
+          <input id="fs-hub" type="text" placeholder="Not open — no 24/7 server budget yet" spellcheck="false" />
           <p class="hint" id="fs-pair-note"></p>
           <label>Chatterbox folder</label>
           <input id="fs-box" type="text" placeholder="C:\\path\\to\\Chatterbox-TTS-Server-main" spellcheck="false" />
@@ -95,7 +95,7 @@
           </select>
           <label>API key (emotion tags + Chinese captions)</label>
           <input id="fs-key" type="password" autocomplete="off" placeholder="Paste key — leave blank to keep the saved one" />
-          <label>Own Telegram bot token (optional — skip if you use the shared bot)</label>
+          <label>Telegram bot token (from @BotFather)</label>
           <input id="fs-token" type="password" autocomplete="off" placeholder="Leave blank to keep the saved token" />
           <label>ffmpeg (optional, YouTube clipper)</label>
           <input id="fs-ffmpeg" type="text" spellcheck="false" />
@@ -136,7 +136,7 @@
       } else if (hub.paired) {
         note.textContent = "Paired. Keep Formant open while you use the shared bot.";
       } else {
-        note.textContent = "Save the hub URL, then tap Pair bot.";
+        note.textContent = "Shared hub is closed for now (no 24/7 server budget). Use your own bot token.";
       }
       mask.querySelector("#fs-box").value = data.chatterbox_dir || "";
       mask.querySelector("#fs-provider").value = data.emotion_provider || "deepseek";

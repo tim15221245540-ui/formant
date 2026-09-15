@@ -7,5 +7,5 @@
   "clip_dir": "",
   "emotion_provider": "deepseek",
   "emotion_model": "",
-  "hub_url": "http://HOST-PUBLIC-IP:8766"
+  "hub_url": ""
 }
